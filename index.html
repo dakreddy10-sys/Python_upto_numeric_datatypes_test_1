@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python MCQ Challenge: Basics</title>
+    <style>
+        :root {
+            --primary: #306998; /* Python Blue */
+            --secondary: #FFD43B; /* Python Yellow */
+            --bg: #f4f4f9;
+            --text: #333;
+            --error: #dc3545;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            text-align: center;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            border-bottom: 5px solid var(--primary);
+        }
+        h1 { margin: 0; color: var(--primary); }
+        .subtitle { color: #666; font-size: 0.9em; margin-top: 5px; }
+        
+        .section-title {
+            background-color: var(--primary);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+
+        .question-card {
+            background: white;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border: 2px solid transparent; /* Prepare for validation highlight */
+            transition: border-color 0.3s;
+        }
+        .question-text { font-weight: 600; margin-bottom: 15px; font-size: 1.1em; }
+        
+        .options label {
+            display: block;
+            padding: 8px 12px;
+            margin: 5px 0;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .options label:hover { background-color: #e9ecef; }
+        .options input { margin-right: 10px; }
+
+        /* Results Styling */
+        .correct-answer { background-color: #d4edda !important; border-color: #c3e6cb !important; color: #155724; }
+        .wrong-answer { background-color: #f8d7da !important; border-color: #f5c6cb !important; color: #721c24; }
+        .feedback { font-size: 0.9em; margin-top: 10px; font-weight: bold; display: none; }
+        
+        #result-box {
+            display: none;
+            background: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 100;
+            border: 2px solid var(--primary);
+            width: 80%;
+            max-width: 400px;
+        }
+        #overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 99;
+        }
+        
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        .btn:hover { background-color: #204d74; }
+        
+        .score-circle {
+            width: 100px; height: 100px;
+            background: var(--secondary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            margin: 0 auto 20px auto;
+            color: #333;
+        }
+
+        .unanswered-warning {
+            border-color: var(--error) !important;
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Python Basic Concepts Exam</h1>
+    <div class="subtitle">Topics: Numeric Types, Operators, None Type | Total Marks: 60</div>
+</header>
+
+<form id="quizForm">
+    <div id="quiz-container">
+        </div>
+    <button type="button" class="btn" onclick="submitQuiz()">Submit Test & Check Score</button>
+</form>
+
+<div id="overlay"></div>
+<div id="result-box">
+    <div class="score-circle" id="score-display">0/60</div>
+    <h2 id="score-message"></h2>
+    <p>Scroll down to review your answers.</p>
+    <button class="btn" onclick="closeModal()">Review Paper</button>
+</div>
+
+<script>
+    // Data Structure containing all 60 Questions
+    const questions = [
+        // Section A: Numeric Data Types
+        { s: "Section A: Numeric Data Types", q: "1. Which of the following is an integer?", o: ["5.5", "\"5\"", "5", "5j"], a: 2 },
+        { q: "2. What is the data type of 10.0?", o: ["int", "float", "complex", "bool"], a: 1 },
+        { q: "3. Which data type supports imaginary numbers?", o: ["int", "float", "complex", "bool"], a: 2 },
+        { q: "4. What is the output of type(7)?", o: ["int", "float", "complex", "bool"], a: 0 },
+        { q: "5. Which is a valid float value?", o: ["10", "10j", "10.5", "\"10.5\""], a: 2 },
+        { q: "6. What is the type of 3+2j?", o: ["int", "float", "complex", "bool"], a: 2 },
+        { q: "7. Which of the following is NOT a numeric data type?", o: ["int", "float", "complex", "list"], a: 3 },
+        { q: "8. What is the output of 10 / 2?", o: ["5", "5.0", "2", "Error"], a: 1 },
+        { q: "9. What is the output of 9 // 2?", o: ["4", "4.5", "5", "Error"], a: 0 },
+        { q: "10. Which operator gives the remainder?", o: ["/", "//", "%", "**"], a: 2 },
+        { q: "11. What is the output of 8 % 3?", o: ["1", "2", "3", "0"], a: 1 },
+        { q: "12. Which numeric type stores decimal values?", o: ["int", "float", "complex", "bool"], a: 1 },
+        { q: "13. What is the value of True in numeric form?", o: ["0", "1", "True", "Error"], a: 1 },
+        { q: "14. What is the value of False in numeric form?", o: ["1", "0", "False", "Error"], a: 1 },
+        { q: "15. What is the output of 5 ** 2?", o: ["7", "10", "25", "Error"], a: 2 },
+        { q: "16. Which function gives absolute value?", o: ["abs()", "round()", "min()", "pow()"], a: 0 },
+        { q: "17. What is the output of abs(-6)?", o: ["-6", "6", "0", "Error"], a: 1 },
+        { q: "18. Which numeric type supports real and imaginary parts?", o: ["int", "float", "complex", "bool"], a: 2 },
+        { q: "19. What is the output of round(4.5)?", o: ["4", "5", "4.5", "Error"], a: 1 },
+        { q: "20. Which is a whole number?", o: ["3.14", "5", "2.5", "4.0"], a: 1 },
+
+        // Section B: Operators
+        { s: "Section B: Operators", q: "21. Which operator is used for addition?", o: ["-", "*", "+", "/"], a: 2 },
+        { q: "22. Which operator checks equality?", o: ["=", "==", "!=", ":="], a: 1 },
+        { q: "23. What is the output of 5 > 3?", o: ["True", "False", "5", "Error"], a: 0 },
+        { q: "24. Which operator is used for logical AND?", o: ["&", "&&", "and", "AND"], a: 2 },
+        { q: "25. What is the output of True and False?", o: ["True", "False", "None", "Error"], a: 1 },
+        { q: "26. Which operator represents logical OR?", o: ["||", "|", "or", "OR"], a: 2 },
+        { q: "27. What is the output of not True?", o: ["True", "False", "None", "Error"], a: 1 },
+        { q: "28. Which operator is used for assignment?", o: ["==", "=", "!=", "=>"], a: 1 },
+        { q: "29. Which operator is used for power?", o: ["^", "**", "pow", "^^"], a: 1 },
+        { q: "30. What is the output of 2 ** 3?", o: ["6", "8", "9", "Error"], a: 1 },
+        { q: "31. Which operator performs floor division?", o: ["/", "//", "%", "**"], a: 1 },
+        { q: "32. What is the output of 7 // 3?", o: ["2", "2.3", "3", "Error"], a: 0 },
+        { q: "33. Which operator returns remainder?", o: ["/", "//", "%", "**"], a: 2 },
+        { q: "34. What is the output of 10 % 4?", o: ["1", "2", "3", "0"], a: 1 },
+        { q: "35. Which operator checks membership?", o: ["is", "in", "==", "="], a: 1 },
+        { q: "36. What is the output of 'a' in 'apple'?", o: ["True", "False", "Error", "None"], a: 0 },
+        { q: "37. Which operator checks identity?", o: ["==", "is", "in", "equals"], a: 1 },
+        { q: "38. What is the output of 10 >= 10?", o: ["True", "False", "Error", "None"], a: 0 },
+        { q: "39. Which operator reverses a condition?", o: ["and", "or", "not", "!"], a: 2 },
+        { q: "40. What is the output of False or True?", o: ["False", "True", "None", "Error"], a: 1 },
+
+        // Section C: None Type
+        { s: "Section C: None Type", q: "41. What is None in Python?", o: ["Zero", "Empty string", "No value", "False"], a: 2 },
+        { q: "42. What is the type of None?", o: ["None", "null", "NoneType", "void"], a: 2 },
+        { q: "43. What does a function return if there is no return statement?", o: ["0", "False", "None", "Error"], a: 2 },
+        { q: "44. Which function returns None?", o: ["len()", "print()", "int()", "input()"], a: 1 },
+        { q: "45. What is the output of print(print('Hi'))?", o: ["Hi", "None", "Hi None", "Error"], a: 2 },
+        { q: "46. What is the result of None == None?", o: ["True", "False", "Error", "None"], a: 0 },
+        { q: "47. Which operator should be used to compare with None?", o: ["==", "equals", "is", "in"], a: 2 },
+        { q: "48. What is the output of None is None?", o: ["True", "False", "Error", "None"], a: 0 },
+        { q: "49. Can None be assigned to a variable?", o: ["Yes", "No", "Sometimes", "Error"], a: 0 },
+        { q: "50. What is the output of bool(None)?", o: ["True", "False", "None", "Error"], a: 1 },
+        { q: "51. Which keyword represents absence of value?", o: ["null", "empty", "None", "void"], a: 2 },
+        { q: "52. What happens if you add None to a number?", o: ["Works fine", "Returns None", "Error", "0"], a: 2 },
+        { q: "53. What is returned by return without a value?", o: ["0", "False", "None", "Error"], a: 2 },
+        { q: "54. Is None equal to 0?", o: ["Yes", "No", "Sometimes", "Error"], a: 1 },
+        { q: "55. What is the output of type(None)?", o: ["None", "null", "NoneType", "Error"], a: 2 },
+        { q: "56. Which value is commonly used for missing data?", o: ["0", "\"\"", "None", "False"], a: 2 },
+        { q: "57. Can None be stored in a list?", o: ["Yes", "No", "Error", "Sometimes"], a: 0 },
+        { q: "58. What is the output of [10, None, 30][1]?", o: ["10", "30", "None", "Error"], a: 2 },
+        { q: "59. In conditions, None is treated as:", o: ["True", "False", "Error", "None"], a: 1 },
+        { q: "60. Which comparison is correct?", o: ["None == 0", "None == False", "None is None", "None > 0"], a: 2 }
+    ];
+
+    const container = document.getElementById('quiz-container');
+
+    // Render Questions
+    questions.forEach((item, index) => {
+        // Add Section Header if it exists
+        if(item.s) {
+            const sectionTitle = document.createElement('h2');
+            sectionTitle.className = 'section-title';
+            sectionTitle.innerText = item.s;
+            container.appendChild(sectionTitle);
+        }
+
+        const card = document.createElement('div');
+        card.className = 'question-card';
+        card.id = `q${index}`;
+
+        // Create Options HTML
+        let optionsHtml = '';
+        item.o.forEach((opt, optIndex) => {
+            optionsHtml += `
+                <label id="lbl_${index}_${optIndex}">
+                    <input type="radio" name="q${index}" value="${optIndex}" onclick="clearError(${index})">
+                    ${String.fromCharCode(65 + optIndex)}) ${opt}
+                </label>
+            `;
+        });
+
+        card.innerHTML = `
+            <div class="question-text">${item.q}</div>
+            <div class="options">${optionsHtml}</div>
+            <div class="feedback" id="feedback_${index}"></div>
+        `;
+        container.appendChild(card);
+    });
+
+    // Remove the red warning border when user clicks an option
+    function clearError(index) {
+        const card = document.getElementById(`q${index}`);
+        card.classList.remove('unanswered-warning');
+        card.style.border = "2px solid transparent";
+    }
+
+    function submitQuiz() {
+        let score = 0;
+        let firstUnanswered = -1;
+
+        // Step 1: Validation Loop
+        for (let i = 0; i < questions.length; i++) {
+            const selected = document.querySelector(`input[name="q${i}"]:checked`);
+            
+            if (!selected) {
+                // Found an unanswered question
+                firstUnanswered = i;
+                const card = document.getElementById(`q${i}`);
+                
+                // Highlight error
+                card.classList.add('unanswered-warning');
+                card.style.border = "2px solid var(--error)";
+                
+                // Alert and Scroll
+                alert(`⚠️ You missed Question ${i + 1}. Please answer all 60 questions to submit.`);
+                card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return; // STOP EXECUTION HERE
+            }
+        }
+
+        // Step 2: Calculate Score (Only runs if all questions are answered)
+        questions.forEach((item, index) => {
+            const selected = document.querySelector(`input[name="q${index}"]:checked`);
+            const feedback = document.getElementById(`feedback_${index}`);
+            const card = document.getElementById(`q${index}`);
+            
+            // Reset styles
+            card.style.border = "2px solid transparent";
+            
+            // Highlight Correct/Wrong
+            const correctLabel = document.getElementById(`lbl_${index}_${item.a}`);
+            const userVal = parseInt(selected.value);
+            
+            if (userVal === item.a) {
+                score++;
+                correctLabel.classList.add('correct-answer');
+                card.style.border = "2px solid #28a745";
+                feedback.style.color = "#155724";
+                feedback.innerText = "✅ Correct!";
+            } else {
+                document.getElementById(`lbl_${index}_${userVal}`).classList.add('wrong-answer');
+                correctLabel.classList.add('correct-answer'); // Show correct answer
+                card.style.border = "2px solid #dc3545";
+                feedback.style.color = "#dc3545";
+                feedback.innerText = `❌ Incorrect. Correct answer: ${String.fromCharCode(65 + item.a)}`;
+            }
+            feedback.style.display = "block";
+        });
+
+        // Show Score Modal
+        const scoreDisplay = document.getElementById('score-display');
+        const scoreMsg = document.getElementById('score-message');
+        
+        scoreDisplay.innerText = `${score}/60`;
+        
+        if(score === 60) scoreMsg.innerText = "Perfect Score! 🏆";
+        else if(score > 45) scoreMsg.innerText = "Excellent Work! 🌟";
+        else if(score > 30) scoreMsg.innerText = "Good Job! 👍";
+        else scoreMsg.innerText = "Keep Practicing! 📚";
+
+        document.getElementById('overlay').style.display = 'block';
+        document.getElementById('result-box').style.display = 'block';
+    }
+
+    function closeModal() {
+        document.getElementById('overlay').style.display = 'none';
+        document.getElementById('result-box').style.display = 'none';
+        window.scrollTo(0, 0);
+    }
+</script>
+
+</body>
+</html>
